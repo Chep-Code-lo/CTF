@@ -1,13 +1,32 @@
-def rot_n(text, n):
-    result = ''
-    for char in text:
-        if char.isalpha():
-            base = ord('A') if char.isupper() else ord('a')
-            result += chr((ord(char) - base + n) % 26 + base)
+import string
+import enchant  # Cần cài bằng: pip install pyenchant
+
+# Hàm giải Caesar Cipher với một shift cụ thể
+def caesar_decrypt(ciphertext, shift):
+    result = ""
+    for char in ciphertext:
+        if char in string.ascii_uppercase:
+            result += chr((ord(char) - 65 - shift) % 26 + 65)
         else:
             result += char
     return result
 
-encrypted_text = "cvpbPGS{arkg_gvzr_V'yy_gel_2_ebhaqf_bs_ebg13_uJdSftmh}"
-for i in range(1, 26):  # thử tất cả các ROT từ 1 đến 25
-    print(f"ROT{i}: {rot_n(encrypted_text, i)}")
+# Hàm phát hiện shift nào cho ra toàn từ tiếng Anh hợp lệ
+def detect_correct_shift(ciphertext):
+    d = enchant.Dict("en_US")
+    for shift in range(1, 26):
+        decrypted = caesar_decrypt(ciphertext.upper(), shift)
+        words = decrypted.split()
+        if all(d.check(word) for word in words):
+            return shift, decrypted
+    return None, "Không tìm thấy shift phù hợp"
+
+# Ví dụ sử dụng
+cipher = "OBYZS TSK GDFWBU QFIQWOZ"
+shift, result = detect_correct_shift(cipher)
+
+if shift:
+    print(f"✅ Caesar Shift đúng là: {shift}")
+    print(f"🔓 Kết quả giải mã: {result}")
+else:
+    print("❌ Không tìm thấy shift phù hợp.")
